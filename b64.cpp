@@ -51,11 +51,11 @@ int Base64::decodeblock_(unsigned char *in, unsigned char *out)
 	in_[1] = cd64[in[1] - '+'];
 	in_[2] = cd64[in[2] - '+'];
 	in_[3] = cd64[in[3] - '+'];
-	out[0] = (((in_[0] << 2) & 0xfc) | in_[1] >> ENCODED_BLOCK_SIZE);
+	out[0] = (((in_[0] << 2) & 0xfc) | in_[1] >> 4);
 	if (in[2] == '=')
 		return 2;
 	else
-		out[1] = (((in_[1] << ENCODED_BLOCK_SIZE) & 0xf0) | in_[2] >> 2);
+		out[1] = (((in_[1] << 4) & 0xf0) | in_[2] >> 2);
 	if (in[3] == '=')
 		return 1;
 	else
@@ -95,7 +95,8 @@ bool  Base64::CheckIsBase64(char *src, long length) {
 }
 
 long Base64::CalcEncodedSize(long rawSize) {
-	long rest = RAW_BLOCK_SIZE - rawSize % RAW_BLOCK_SIZE;
+	long rest = rawSize % RAW_BLOCK_SIZE;
+	if (rest) rest = RAW_BLOCK_SIZE - rest;
 	long absSize = rawSize + rest;
 	return absSize / RAW_BLOCK_SIZE * ENCODED_BLOCK_SIZE;
 }
